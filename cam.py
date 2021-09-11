@@ -4,6 +4,19 @@ import os
 import signal
 from threading import Timer
 
+allowed_filters = ["fireworks", "disco", "color", "rock", "rickroll", "frame", "rotate"]
+
+filter_data = [
+    {
+    "name": "disco",
+    "inputs": ["static/disco.png"],
+    "params": [["period", "magnitude"], ["3","500"]],
+    "filter": "[#####][v]scale2ref=w=oh*mdar:h=ih/5[disco][v];[v][disco]overlay=x=W*4/10:y=0[v];[v]hue=\'h=!!magnitude!!+!!magnitude!!*sin(2*PI*t/!!period!!)\'[v]"
+    }
+]
+
+filter_data = {x['name']: x for x in filter_data}
+
 class Cam:
     def __init__(self):
         self.orig_inputs = ["/dev/video0"]
@@ -26,6 +39,19 @@ class Cam:
             else:
                 parsed += [[i, defaults[i]]]
         return parsed
+
+    def add_generic_effect(self, params, name):
+        effect_data = filter_data[name]
+        params = self.parse_input(params, effect_data["params"][0], effect_data["params"][1])
+        filter_string = effect_data["filter"]
+        for i in params:
+            temp = filter_string.split("!!" + effect_data["params"][0][i[0]] + "!!")
+            filter_string = str(i[1]).join(temp)
+        self.effects.append({
+            "name": effect_data["name"],
+            "inputs": effect_data["inputs"],
+            "filter": filter_string 
+        })
 
     def add_disco(self, params):
         params = self.parse_input(params, ["period", "magnitude"], ["3","500"])
@@ -194,7 +220,8 @@ if __name__ == "__main__":
             if function == "color":
                 cam.add_colorcycle(words[2:])
             elif function == "disco":
-                cam.add_disco(words[2:])
+                #cam.add_disco(words[2:])
+                cam.add_generic_effect(words[2:], "disco")
             elif function == "fireworks":
                 cam.add_fireworks(words[2:])
             elif function == "rock":
@@ -209,20 +236,45 @@ if __name__ == "__main__":
                 print("function not recognized")
         elif words[0] == "remove":
             if(len(words) == 1):
-                    print("Needs a filter to remove!")
+                    print("Needs an effect to remove!")
                     continue
             cam.effects = [i for i in cam.effects if i["name"] != words[1].lower()]
         elif words[0] == "list":
-            for filter in cam.effects:
-                print(filter["name"])
+            for i in range(len(cam.effects)):
+                print(str(i) + ". " + cam.effects[i]["name"])
         elif words[0] == "command":
             print(cam.command)
+        elif words[0] == "swap":
+            try:
+                a = int(words[1])
+                b = int(words[3])
+            except:
+                print("Please phrase your inquiry, \"Swap [first number] and [second number]\". Use the \"list\" command to get the numbers of each effect.")
+                continue
+            c = cam.effects[a]
+            d = cam.effects[b]
+            cam.effects[a] = d
+            cam.effects[b] = c
+        elif words[0] == "effects":
+            print("Our current allowed effects are:")
+            for i in range(len(allowed_filters)):
+                print(str(i) + ". " + allowed_filters[i])
+        elif words[0] == "help":
+            print("Welcome to the Spicy Cam!")
+            print("Use the \"effects\" command to see all allowed effects at this time.")
+            print("Type \"help\" to see this help page.")
+            print("Type \"swap [first number] and [second number]\" to swap the order application of two effects. use the \"list\" command to see all current effects.")
+            print("Type \"command\" to see and copy the current ffmpeg command")
+            print("Type \"add\" and then an effect name to add an effect. Enter parameters after in the form \"[parameter name] [value]\". Any other text will be ignored")
+            print("Type \"remove\" and then an effect name to remove all effects of that type")
+            print("Type \"exit\" or Ctrl-C to exit.")
+            print("That's it! Happy Camming!")
         else:
             print("Invalid command")
             continue
         
         cam.generate_cmd()
-        print(cam.command)
+        #print(cam.command)
         cam.run_cmd()
 
     cam.shutdown()
