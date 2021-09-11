@@ -20,12 +20,12 @@ class Cam:
         return parsed
 
     def add_colorcycle(self, params):
-        parse_input(params, ["period", "magnitude"])
+        params = parse_input(params, ["period", "magnitude"])
         
         self.effects.append({
             "name": "cycle hue",
             "inputs": [],
-            "filter": "[v]hue=\"h=" + + " \"[v]",
+            "filter": "[v]hue=\"h=" + params[1] + "*sin(2*PI/" + params[0] + ")\"[v]",
         })
     
     def add_rotate(self, angle="PI"):
@@ -48,9 +48,9 @@ class Cam:
         })
 
     def generate_cmd(self):
-        self.inputs = self.orig_inputs
+        self.inputs = self.orig_inputs[:]
         self.output = self.orig_output
-        self.filters = self.orig_filters
+        self.filters = self.orig_filters[:]
 
         ## Generate indexed filters
         next_input = len(self.inputs)
@@ -73,7 +73,7 @@ class Cam:
             self.command += "-filter_complex \""
             self.command += ";".join(self.filters)
             self.command += "\" "
-        self.command += "-map \"[v]\"] "
+        self.command += "-map \"[v]\" "
         self.command += "-f " + self.output
     
     def run_cmd(self):
@@ -106,6 +106,8 @@ if __name__ == "__main__":
             function = words[1]
             if function == "rotate":
                 cam.add_rotate()
+            elif function == "color":
+                cam.add_colorcycle(words[2:])
             else:
                 print("function not recognized")
         elif words[0] == "remove":
@@ -122,7 +124,6 @@ if __name__ == "__main__":
         cam.generate_cmd()       
         print(cam.command)
         cam.run_cmd()
-
 
     cam.shutdown()
 # add rotate speed 2
