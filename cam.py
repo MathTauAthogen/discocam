@@ -12,7 +12,44 @@ filter_data = [
     "inputs": ["static/disco.png"],
     "params": [["period", "magnitude"], ["3","500"]],
     "filter": "[#####][v]scale2ref=w=oh*mdar:h=ih/5[disco][v];[v][disco]overlay=x=W*4/10:y=0[v];[v]hue=\'h=!!magnitude!!+!!magnitude!!*sin(2*PI*t/!!period!!)\'[v]"
-    }
+    },
+    {
+    "name": "fireworks",
+    "inputs": ["static/fireworks.png"],
+    "params": [[],[]],
+    "filter": "[#####][v]scale2ref=h=ow/mdar:w=iw*1/3[fireworks][v];[v][fireworks]overlay[v]",
+    },
+    {
+    "name": "color",
+    "inputs": [],
+    "params": [["period", "magnitude"], ["3","500"]],
+    "filter": "[v]hue=\'h=!!magnitude!!+!!magnitude!!*sin(2*PI*t/!!period!!)\'[v]",
+    },
+    {
+    "name": "rock",
+    "params": [["period", "magnitude"], ["3","0.005"]],
+    "inputs": [],
+    "filter": "[v]rotate=\'PI*!!magnitude!!*sin(2*PI*t/!!period!!)\'[v]",
+    },
+    {
+    "name": "rickroll",
+    "inputs": ["static/disco.png"],
+    "params": [["period", "magnitude"], ["3","500"]],
+    "filter": "[#####][v]scale2ref=w=oh*mdar:h=ih/5[disco][v];[v][disco]overlay=x=W*4/10:y=0[v];[v]hue=\'h=!!magnitude!!+!!magnitude!!*sin(2*PI*t/!!period!!)\'[v]"
+    },
+    {
+    "name": "frame",
+    "inputs": ["static/frame.mp4"],
+    "params": [[],[]],
+    "filter": "[#####][v]scale2ref=iw*1:-1[rickroll][v];[rickroll]colorkey=color=white:similarity=0.1[rickroll];[v][rickroll]overlay=x=0:y=0[v]"
+    },
+    {
+    "name": "rotate",
+    "inputs": [],
+    "params": [["angle"], ["1"]],
+    "filter": "[v]rotate=\'PI*!!angle!!\'[v]",
+    },
+
 ]
 
 filter_data = {x['name']: x for x in filter_data}
@@ -52,53 +89,7 @@ class Cam:
             "inputs": effect_data["inputs"],
             "filter": filter_string 
         })
-
-    def add_disco(self, params):
-        params = self.parse_input(params, ["period", "magnitude"], ["3","500"])
-
-        disco_part = "[#####][v]scale2ref=w=oh*mdar:h=ih/5[disco][v];[v][disco]overlay=x=W*4/10:y=0[v]"
-        color_part = "[v]hue=\'h=" + params[1][1] + "+" + params[1][1] + "*sin(2*PI*t/" + params[0][1] + ")\'[v]"
-
-        self.effects.append({
-            "name": "disco",
-            "inputs": ["static/disco.png"],
-            "filter": disco_part + ";" + color_part,
-        })
-
-    def add_justify(self, params):
-        self.effects.append({
-            "name": "justify",
-            "inputs": [],
-            "filter": "[v]fillborders[v]",
-        })
-
-
-    def add_colorcycle(self, params):
-        params = self.parse_input(params, ["period", "magnitude"], ["3","2"])
-        
-        self.effects.append({
-            "name": "color",
-            "inputs": [],
-            "filter": "[v]hue=\'h=" + params[1][1] + "+" + params[1][1] + "*sin(2*PI*t/" + params[0][1] + ")\'[v]",
-        })
     
-    def add_fireworks(self, params):
-
-        self.effects.append({
-            "name": "fireworks",
-            "inputs": ["static/fireworks.png"],
-            "filter": "[#####][v]scale2ref=h=ow/mdar:w=iw*1/3[fireworks][v];[v][fireworks]overlay[v]"
-        })
-        
-    def add_rock(self, params):
-        params = self.parse_input(params, ["period", "magnitude"], ["3","0.005"])
-        
-        self.effects.append({
-            "name": "rock",
-            "inputs": [],
-            "filter": "[v]rotate=\'PI*" + params[1][1] + "*sin(2*PI*t/" + params[0][1] + ")\'[v]",
-        })
-
     def add_rickroll(self, params):
         params = self.parse_input(params, ["position"], ["topright"])
 
@@ -109,36 +100,12 @@ class Cam:
             "filter": "[#####][v]scale2ref=w=oh*mdar:h=ih/4[rickroll][v];[rickroll]fillborders=left=30:right=30:mode=smear[rickroll];[v][rickroll]overlay=x=W*2/3:y=H/12[v]"
             #"filter": "[#####][v]scale2ref=w=oh*mdar:h=ih/4[rickroll][v];[v][rickroll]overlay=x=W*2/3:y=H/12[v]"
         })
-    
-    def add_frame(self, params):
-        params = self.parse_input(params, ["position"], ["topright"])
 
+    def add_justify(self, params):
         self.effects.append({
-            "name": "frame",
-            "inputs": ["static/frame.mp4"],
-            "filter": "[#####][v]scale2ref=iw*1:-1[rickroll][v];[rickroll]colorkey=color=white:similarity=0.1[rickroll];[v][rickroll]overlay=x=0:y=0[v]"
-        })
-
-
-    def add_rotate(self, params):
-        params = self.parse_input(params, ["angle"], ["1"])
-
-        self.effects.append({
-            "name": "rotate",
+            "name": "justify",
             "inputs": [],
-            "filter": "[v]rotate=\'PI*" + params[0][1] + "\'[v]",
-        })
-
-    def add_rotate_2(self, params=None):
-        if params != None:
-            words = params.split(" ")
-            if words[0].lower() == "speed":
-                speed = words[1]
-
-        self.effects.append({
-            "name": "rotate",
-            "inputs": [],
-            "filter": "[v]rotate=" + angle + "[v]",
+            "filter": "[v]fillborders[v]",
         })
 
     def generate_cmd(self):
@@ -216,22 +183,12 @@ if __name__ == "__main__":
             if(len(words) == 1):
                 print("Needs a filter to add!")
                 continue
-            function = words[1]
-            if function == "color":
-                cam.add_colorcycle(words[2:])
-            elif function == "disco":
-                #cam.add_disco(words[2:])
-                cam.add_generic_effect(words[2:], "disco")
-            elif function == "fireworks":
-                cam.add_fireworks(words[2:])
-            elif function == "rock":
-                cam.add_rock(words[2:])
-            elif function == "justify":
-                cam.add_justify(words[2:])
-            elif function == "rickroll":
-                cam.add_rickroll(words[2:])
-            elif function == "frame":
-                cam.add_frame(words[2:])
+            function = words[1].lower()
+            if(function in allowed_filters):
+                if(function != "rickroll"):
+                    cam.add_generic_effect(words[2:], function)
+                else:
+                    cam.add_rickroll(words[2:])
             else:
                 print("function not recognized")
         elif words[0] == "remove":
