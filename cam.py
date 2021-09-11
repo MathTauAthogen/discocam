@@ -61,7 +61,7 @@ class Cam:
         self.effects.append({
             "name": "fireworks",
             "inputs": ["static/fireworks.png"],
-            "filter": "[#####][v]scale2ref=w=oh*mdar:h=ih*2/3[fireworks][v];[v][fireworks]overlay[v]"
+            "filter": "[#####][v]scale2ref=h=ow/mdar:w=iw*1/3[fireworks][v];[v][fireworks]overlay[v]"
         })
         
     def add_rock(self, params):
@@ -181,6 +181,8 @@ if __name__ == "__main__":
                 cam.add_colorcycle(words[2:])
             elif function == "disco":
                 cam.add_disco(words[2:])
+            elif function == "fireworks":
+                cam.add_fireworks(words[2:])
             elif function == "rock":
                 cam.add_rock(words[2:])
             elif function == "justify":
