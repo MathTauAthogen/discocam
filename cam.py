@@ -29,7 +29,7 @@ class Cam:
         params = self.parse_input(params, ["period", "magnitude"], ["3","2"])
         
         self.effects.append({
-            "name": "cycle hue",
+            "name": "color",
             "inputs": [],
             "filter": "[v]hue=\'h=" + params[1][1] + "+" + params[1][1] + "*sin(2*PI*t/" + params[0][1] + ")\'[v]",
         })
@@ -38,7 +38,7 @@ class Cam:
         params = self.parse_input(params, ["period", "magnitude"], ["3","0.005"])
         
         self.effects.append({
-            "name": "cycle angle",
+            "name": "rock",
             "inputs": [],
             "filter": "[v]rotate=\'PI*" + params[1][1] + "*sin(2*PI*t/" + params[0][1] + ")\'[v]",
         })
@@ -95,6 +95,7 @@ class Cam:
     def run_cmd(self):
         if self.process:
             #self.process.terminate()
+            print(self.process.stderr.detach())
             os.system("pkill ffmpeg")
         self.process=subprocess.Popen(self.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
         # out,err=self.process.communicate()
@@ -131,7 +132,7 @@ if __name__ == "__main__":
             else:
                 print("function not recognized")
         elif words[0] == "remove":
-            pass
+            cam.effects = [i for i in cam.effects if i["name"] != words[1].lower()]
         elif words[0] == "list":
             for filter in cam.effects:
                 print(filter["name"])
