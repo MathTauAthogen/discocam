@@ -80,7 +80,7 @@ class Cam:
             "name": "rickroll",
             "inputs": ["static/rickroll.mp4"],
             #"filter": "[#####][v]scale2ref=w=oh*mdar:h=ih/4[rickroll][v];[v][rickroll]overlay=x=W*2/3:y=H/12[v]"
-            "filter": "[#####][v]scale2ref=w=oh*mdar:h=ih/4[rickroll][v];[rickroll]fillborders=left=23:right=23:mode=smear[rickroll];[v][rickroll]overlay=x=W*2/3:y=H/12[v]"
+            "filter": "[#####][v]scale2ref=w=oh*mdar:h=ih/4[rickroll][v];[rickroll]fillborders=left=30:right=30:mode=smear[rickroll];[v][rickroll]overlay=x=W*2/3:y=H/12[v]"
             #"filter": "[#####][v]scale2ref=w=oh*mdar:h=ih/4[rickroll][v];[v][rickroll]overlay=x=W*2/3:y=H/12[v]"
         })
     
