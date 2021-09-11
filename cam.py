@@ -1,4 +1,6 @@
 import subprocess
+import os
+import signal
 
 class Cam:
     def __init__(self):
@@ -9,24 +11,38 @@ class Cam:
         self.command = ""
         self.process = None
 
-    def parse_input(self, input, allowed_keys):
-        input = input.lower()
-        words = input.split(" ")
+    def parse_input(self, words, allowed_keys, defaults):
+        words = [i.lower() for i in words]
         parsed = []
-        for i in len(allowed_keys):
-            ind = words.index(allowed_keys[i])
+        for i in range(len(allowed_keys)):
+            try:
+                ind = words.index(allowed_keys[i])
+            except:
+                ind = -1
             if(ind != -1):
                 parsed += [[i, words[ind+1]]]
+            else:
+                parsed += [[i, defaults[i]]]
         return parsed
 
     def add_colorcycle(self, params):
-        parse_input(params, ["period", "magnitude"])
+        params = self.parse_input(params, ["period", "magnitude"], ["3","2"])
         
         self.effects.append({
             "name": "cycle hue",
             "inputs": [],
-            "filter": "[v]hue=\"h=" + + " \"[v]",
+            "filter": "[v]hue=\'h=" + params[1][1] + "+" + params[1][1] + "*sin(2*PI*t/" + params[0][1] + ")\'[v]",
         })
+        
+    def add_rock(self, params):
+        params = self.parse_input(params, ["period", "magnitude"], ["3","0.005"])
+        
+        self.effects.append({
+            "name": "cycle angle",
+            "inputs": [],
+            "filter": "[v]rotate=\'PI*" + params[1][1] + "*sin(2*PI*t/" + params[0][1] + ")\'[v]",
+        })
+
     
     def add_rotate(self, angle="PI"):
         self.effects.append({
@@ -48,9 +64,9 @@ class Cam:
         })
 
     def generate_cmd(self):
-        self.inputs = self.orig_inputs
+        self.inputs = self.orig_inputs[:]
         self.output = self.orig_output
-        self.filters = self.orig_filters
+        self.filters = self.orig_filters[:]
 
         ## Generate indexed filters
         next_input = len(self.inputs)
@@ -73,12 +89,13 @@ class Cam:
             self.command += "-filter_complex \""
             self.command += ";".join(self.filters)
             self.command += "\" "
-        self.command += "-map \"[v]\"] "
+        self.command += "-map \"[v]\" "
         self.command += "-f " + self.output
     
     def run_cmd(self):
         if self.process:
-            self.process.terminate()
+            #self.process.terminate()
+            os.system("pkill ffmpeg")
         self.process=subprocess.Popen(self.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
         # out,err=self.process.communicate()
 
@@ -87,7 +104,8 @@ class Cam:
     
     def shutdown(self):
         if self.process:
-            self.process.terminate()
+            os.system("pkill ffmpeg")
+            #self.process.terminate()
 
     
 this_filter = "[v]rotate=PI[v];"
@@ -106,6 +124,10 @@ if __name__ == "__main__":
             function = words[1]
             if function == "rotate":
                 cam.add_rotate()
+            elif function == "color":
+                cam.add_colorcycle(words[2:])
+            elif function == "rock":
+                cam.add_rock(words[2:])
             else:
                 print("function not recognized")
         elif words[0] == "remove":
@@ -119,10 +141,9 @@ if __name__ == "__main__":
             print("Invalid command")
             continue
         
-        cam.generate_cmd()       
+        cam.generate_cmd()
         print(cam.command)
         cam.run_cmd()
-
 
     cam.shutdown()
 # add rotate speed 2
@@ -130,3 +151,4 @@ if __name__ == "__main__":
 
 # add rotate speed 2
 # add rotate by angle PI
+
