@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import subprocess
 import os
 import signal
@@ -52,6 +53,14 @@ class Cam:
             "filter": "[v]rotate=\'PI*" + params[1][1] + "*sin(2*PI*t/" + params[0][1] + ")\'[v]",
         })
 
+    def add_rickroll(self, params):
+        params = self.parse_input(params, ["position"], ["topright"])
+
+        self.effects.append({
+            "name": "rickroll",
+            "inputs": ["static/rickroll.mp4"],
+            "filter": "[#####][v]scale2ref=iw*0.25:-1[rickroll][v];[v][rickroll]overlay=x=W*2/3:y=H/12[v]"
+        })
     
     def add_rotate(self, params):
         params = self.parse_input(params, ["angle"], ["1"])
@@ -85,7 +94,7 @@ class Cam:
             num_inputs = len(effect["inputs"])
             current_filter = effect["filter"]
             if num_inputs == 1:
-                current_filter = current_filter.replace("#####", next_input)
+                current_filter = current_filter.replace("#####", str(next_input))
                 next_input += num_inputs # 1
             elif num_inputs > 1:
                 pass # NOT IMPLEMENTED
@@ -95,7 +104,7 @@ class Cam:
         
         ## Generate command
         self.command = "ffmpeg "
-        self.command += "-i " + "-i ".join(self.inputs) + " "
+        self.command += "-i " + " -i ".join(self.inputs) + " "
         if self.filters:
             self.command += "-filter_complex \""
             self.command += ";".join(self.filters)
@@ -156,6 +165,8 @@ if __name__ == "__main__":
                 cam.add_rock(words[2:])
             elif function == "justify":
                 cam.add_justify(words[2:])
+            elif function == "rickroll":
+                cam.add_rickroll(words[2:])
             else:
                 print("function not recognized")
         elif words[0] == "remove":
