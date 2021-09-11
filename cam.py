@@ -39,6 +39,14 @@ class Cam:
             "filter": disco_part + ";" + color_part,
         })
 
+    def add_justify(self, params):
+        self.effects.append({
+            "name": "justify",
+            "inputs": [],
+            "filter": "[v]fillborders[v]",
+        })
+
+
     def add_colorcycle(self, params):
         params = self.parse_input(params, ["period", "magnitude"], ["3","2"])
         
@@ -143,7 +151,6 @@ class Cam:
         if self.process:
             #self.process.terminate()
             os.system("pkill ffmpeg")
-        print("ffmpeg restarted")
         self.process=subprocess.Popen(self.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
         t = Timer(300, self.restart_ffmpeg, [])
         t.start()
@@ -157,6 +164,8 @@ if __name__ == "__main__":
     cam = Cam()
     t = Timer(300, cam.restart_ffmpeg, [])
     t.start()
+    cam.generate_cmd()
+    cam.run_cmd()
     while True:
         command = input("Enter a command > ")
         words = command.split(" ")
@@ -164,20 +173,26 @@ if __name__ == "__main__":
             cam.shutdown()
             break
         elif words[0] == "add":
+            if(len(words) == 1):
+                print("Needs a filter to add!")
+                continue
             function = words[1]
             if function == "color":
                 cam.add_colorcycle(words[2:])
             elif function == "disco":
                 cam.add_disco(words[2:])
-            elif function == "rickroll":
-                cam.add_rickroll(words[2:])
             elif function == "rock":
                 cam.add_rock(words[2:])
-            elif function == "rotate":
-                cam.add_rotate(words[2:])
+            elif function == "justify":
+                cam.add_justify(words[2:])
+            elif function == "rickroll":
+                cam.add_rickroll(words[2:])
             else:
                 print("function not recognized")
         elif words[0] == "remove":
+            if(len(words) == 1):
+                    print("Needs a filter to remove!")
+                    continue
             cam.effects = [i for i in cam.effects if i["name"] != words[1].lower()]
         elif words[0] == "list":
             for filter in cam.effects:
