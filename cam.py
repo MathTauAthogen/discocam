@@ -19,6 +19,15 @@ class Cam:
                 parsed += [[i, words[ind+1]]]
         return parsed
 
+    def add_colorcycle(self, params):
+        parse_input(params, ["period", "magnitude"])
+        
+        self.effects.append({
+            "name": "cycle hue",
+            "inputs": [],
+            "filter": "[v]hue=\"h=" + + " \"[v]",
+        })
+    
     def add_rotate(self, angle="PI"):
         self.effects.append({
             "name": "rotate",
@@ -55,7 +64,7 @@ class Cam:
                 pass # NOT IMPLEMENTED
             
             self.filters.append(current_filter)
-            self.inputs += effects["inputs"]
+            self.inputs += effect["inputs"]
         
         ## Generate command
         self.command = "ffmpeg "
@@ -70,7 +79,7 @@ class Cam:
     def run_cmd(self):
         if self.process:
             self.process.terminate()
-        self.process=subprocess.Popen(self.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        self.process=subprocess.Popen(self.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
         # out,err=self.process.communicate()
 
         # print('output is: \n', out)
@@ -87,6 +96,7 @@ another_filter = "[v][2]overlay=auto[v];"
 if __name__ == "__main__":
     cam = Cam()
     while True:
+        print()
         command = input("Enter a command > ")
         words = command.split(" ")
         if words[0] == "exit":
@@ -95,7 +105,7 @@ if __name__ == "__main__":
         elif words[0] == "add":
             function = words[1]
             if function == "rotate":
-                pass
+                cam.add_rotate()
             else:
                 print("function not recognized")
         elif words[0] == "remove":
@@ -109,10 +119,12 @@ if __name__ == "__main__":
             print("Invalid command")
             continue
         
-        cam.generate_cmd()
+        cam.generate_cmd()       
         print(cam.command)
         cam.run_cmd()
 
+
+    cam.shutdown()
 # add rotate speed 2
 # remove rotate
 
