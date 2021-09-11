@@ -59,9 +59,20 @@ class Cam:
         self.effects.append({
             "name": "rickroll",
             "inputs": ["static/rickroll.mp4"],
-            "filter": "[#####][v]scale2ref=iw*0.25:-1[rickroll][v];[v][rickroll]overlay=x=W*2/3:y=H/12[v]"
+            "filter": "[#####][v]scale2ref=iw*0.25:-1[rickroll][v];[rickroll]fillborders=left=23:right=23:mode=smear[rickroll];[v][rickroll]overlay=x=W*2/3:y=H/12[v]"
+            #"filter": "[#####][v]scale2ref=iw*0.25:-1[rickroll][v];[v][rickroll]overlay=x=W*2/3:y=H/12[v]"
         })
     
+    def add_frame(self, params):
+        params = self.parse_input(params, ["position"], ["topright"])
+
+        self.effects.append({
+            "name": "frame",
+            "inputs": ["static/frame.mp4"],
+            "filter": "[#####][v]scale2ref=iw*1:-1[rickroll][v];[rickroll]colorkey=color=white:similarity=0.1[rickroll];[v][rickroll]overlay=x=0:y=0[v]"
+        })
+
+
     def add_rotate(self, params):
         params = self.parse_input(params, ["angle"], ["1"])
 
@@ -167,6 +178,8 @@ if __name__ == "__main__":
                 cam.add_justify(words[2:])
             elif function == "rickroll":
                 cam.add_rickroll(words[2:])
+            elif function == "frame":
+                cam.add_frame(words[2:])
             else:
                 print("function not recognized")
         elif words[0] == "remove":
