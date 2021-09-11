@@ -1,6 +1,7 @@
 import subprocess
 import os
 import signal
+from threading import Timer
 
 class Cam:
     def __init__(self):
@@ -95,7 +96,6 @@ class Cam:
     def run_cmd(self):
         if self.process:
             #self.process.terminate()
-            print(self.process.stderr.detach())
             os.system("pkill ffmpeg")
         self.process=subprocess.Popen(self.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
         # out,err=self.process.communicate()
@@ -108,14 +108,25 @@ class Cam:
             os.system("pkill ffmpeg")
             #self.process.terminate()
 
+    def restart_ffmpeg(self):
+        if self.process:
+            #self.process.terminate()
+            os.system("pkill ffmpeg")
+        print("ffmpeg restarted")
+        self.process=subprocess.Popen(self.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+        t = Timer(300, self.restart_ffmpeg, [])
+        t.start()
+
+
     
 this_filter = "[v]rotate=PI[v];"
 another_filter = "[v][2]overlay=auto[v];"
 
 if __name__ == "__main__":
     cam = Cam()
+    t = Timer(300, cam.restart_ffmpeg, [])
+    t.start()
     while True:
-        print()
         command = input("Enter a command > ")
         words = command.split(" ")
         if words[0] == "exit":
