@@ -53,11 +53,13 @@ class Cam:
             "filter": "[#####][v]scale2ref=iw*0.25:-1[rickroll][v];[v][rickroll]overlay=x=W*2/3:y=H/12[v]"
         })
     
-    def add_rotate(self, angle="PI"):
+    def add_rotate(self, params):
+        params = self.parse_input(params, ["angle"], ["1"])
+
         self.effects.append({
             "name": "rotate",
             "inputs": [],
-            "filter": "[v]rotate=" + angle + "[v]",
+            "filter": "[v]rotate=\'PI*" + params[0][1] + "\'[v]",
         })
 
     def add_rotate_2(self, params=None):
@@ -143,7 +145,7 @@ if __name__ == "__main__":
         elif words[0] == "add":
             function = words[1]
             if function == "rotate":
-                cam.add_rotate()
+                cam.add_rotate(words[2:])
             elif function == "color":
                 cam.add_colorcycle(words[2:])
             elif function == "rock":
