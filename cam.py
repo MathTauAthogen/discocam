@@ -27,6 +27,18 @@ class Cam:
                 parsed += [[i, defaults[i]]]
         return parsed
 
+    def add_disco(self, params):
+        params = self.parse_input(params, ["period", "magnitude"], ["3","500"])
+
+        disco_part = "[#####][v]scale2ref=w=oh*mdar:h=ih/5[disco][v];[v][disco]overlay=x=W*4/10:y=0[v]"
+        color_part = "[v]hue=\'h=" + params[1][1] + "+" + params[1][1] + "*sin(2*PI*t/" + params[0][1] + ")\'[v]"
+
+        self.effects.append({
+            "name": "disco",
+            "inputs": ["static/disco.png"],
+            "filter": disco_part + ";" + color_part,
+        })
+
     def add_justify(self, params):
         self.effects.append({
             "name": "justify",
@@ -42,6 +54,14 @@ class Cam:
             "name": "color",
             "inputs": [],
             "filter": "[v]hue=\'h=" + params[1][1] + "+" + params[1][1] + "*sin(2*PI*t/" + params[0][1] + ")\'[v]",
+        })
+    
+    def add_fireworks(self, params):
+
+        self.effects.append({
+            "name": "fireworks",
+            "inputs": ["static/fireworks.png"],
+            "filter": "[#####][v]scale2ref=w=oh*mdar:h=ih*2/3[fireworks][v];[v][fireworks]overlay[v]"
         })
         
     def add_rock(self, params):
@@ -59,8 +79,9 @@ class Cam:
         self.effects.append({
             "name": "rickroll",
             "inputs": ["static/rickroll.mp4"],
-            "filter": "[#####][v]scale2ref=iw*0.25:-1[rickroll][v];[rickroll]fillborders=left=23:right=23:mode=smear[rickroll];[v][rickroll]overlay=x=W*2/3:y=H/12[v]"
-            #"filter": "[#####][v]scale2ref=iw*0.25:-1[rickroll][v];[v][rickroll]overlay=x=W*2/3:y=H/12[v]"
+            #"filter": "[#####][v]scale2ref=w=oh*mdar:h=ih/4[rickroll][v];[v][rickroll]overlay=x=W*2/3:y=H/12[v]"
+            "filter": "[#####][v]scale2ref=w=oh*mdar:h=ih/4[rickroll][v];[rickroll]fillborders=left=23:right=23:mode=smear[rickroll];[v][rickroll]overlay=x=W*2/3:y=H/12[v]"
+            #"filter": "[#####][v]scale2ref=w=oh*mdar:h=ih/4[rickroll][v];[v][rickroll]overlay=x=W*2/3:y=H/12[v]"
         })
     
     def add_frame(self, params):
@@ -168,10 +189,10 @@ if __name__ == "__main__":
                 print("Needs a filter to add!")
                 continue
             function = words[1]
-            if function == "rotate":
-                cam.add_rotate(words[2:])
-            elif function == "color":
+            if function == "color":
                 cam.add_colorcycle(words[2:])
+            elif function == "disco":
+                cam.add_disco(words[2:])
             elif function == "rock":
                 cam.add_rock(words[2:])
             elif function == "justify":
