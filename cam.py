@@ -96,9 +96,7 @@ class Cam:
         self.effects.append({
             "name": "rickroll",
             "inputs": ["static/rickroll.mp4"],
-            #"filter": "[#####][v]scale2ref=w=oh*mdar:h=ih/4[rickroll][v];[v][rickroll]overlay=x=W*2/3:y=H/12[v]"
-            "filter": "[#####][v]scale2ref=w=oh*mdar:h=ih/4[rickroll][v];[rickroll]fillborders=left=30:right=30:mode=smear[rickroll];[v][rickroll]overlay=x=W*2/3:y=H/12[v]"
-            #"filter": "[#####][v]scale2ref=w=oh*mdar:h=ih/4[rickroll][v];[v][rickroll]overlay=x=W*2/3:y=H/12[v]"
+            "filter": "[#####]crop=in_w-2*90[rickroll];[rickroll][v]scale2ref=w=oh*mdar:h=ih/4[rickroll][v];[v][rickroll]overlay=x=W*2/3:y=H/12[v]"
         })
 
     def add_justify(self, params):
