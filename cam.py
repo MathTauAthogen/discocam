@@ -90,22 +90,6 @@ class Cam:
             "filter": filter_string 
         })
     
-    def add_rickroll(self, params):
-        params = self.parse_input(params, ["position"], ["topright"])
-
-        self.effects.append({
-            "name": "rickroll",
-            "inputs": ["static/rickroll.mp4"],
-            "filter": "[#####]crop=in_w-2*90[rickroll];[rickroll][v]scale2ref=w=oh*mdar:h=ih/4[rickroll][v];[v][rickroll]overlay=x=W*11/12-iw:y=H/12[v]"
-        })
-
-    def add_justify(self, params):
-        self.effects.append({
-            "name": "justify",
-            "inputs": [],
-            "filter": "[v]fillborders[v]",
-        })
-
     def generate_cmd(self):
         self.inputs = self.orig_inputs[:]
         self.output = self.orig_output
