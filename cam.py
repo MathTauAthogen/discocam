@@ -138,7 +138,10 @@ class Cam:
     def run_cmd(self):
         if self.process:
             #self.process.terminate()
+            #self.process.kill()
+            #os.killpg(os.getpgid(self.process.pid), signal.SIGKILL)
             os.system("pkill ffmpeg")
+            os.wait()
         self.process = subprocess.Popen(self.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
         # os.system(self.command)
         # out,err=self.process.communicate()
@@ -155,6 +158,7 @@ class Cam:
         if self.process:
             #self.process.terminate()
             os.system("pkill ffmpeg")
+
         self.process = subprocess.Popen(self.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
         t = Timer(300, self.restart_ffmpeg, [])
         t.start()
@@ -166,8 +170,8 @@ another_filter = "[v][2]overlay=auto[v];"
 
 if __name__ == "__main__":
     cam = Cam()
-    t = Timer(300, cam.restart_ffmpeg, [])
-    t.start()
+    #t = Timer(300, cam.restart_ffmpeg, [])
+    #t.start()
     cam.generate_cmd()
     cam.run_cmd()
     while True:
@@ -196,8 +200,10 @@ if __name__ == "__main__":
         elif words[0] == "list":
             for i in range(len(cam.effects)):
                 print(str(i) + ". " + cam.effects[i]["name"])
+            continue
         elif words[0] == "command":
             print(cam.command)
+            continue
         elif words[0] == "swap":
             try:
                 a = int(words[1])
@@ -213,6 +219,7 @@ if __name__ == "__main__":
             print("Our current allowed effects are:")
             for i in range(len(allowed_filters)):
                 print(str(i) + ". " + allowed_filters[i])
+            continue
         elif words[0] == "help":
             print("Welcome to the Spicy Cam!")
             print("Use the \"effects\" command to see all allowed effects at this time.")
@@ -223,14 +230,15 @@ if __name__ == "__main__":
             print("Type \"remove\" and then an effect name to remove all effects of that type")
             print("Type \"exit\" or Ctrl-C to exit.")
             print("That's it! Happy Camming!")
+            continue
+        elif words[0] == "clear":
+            os.system("clear")
+            continue
         else:
             print("Invalid command")
             continue
-        
         cam.generate_cmd()
-        print(cam.command)
         cam.run_cmd()
-
     cam.shutdown()
 # add rotate speed 2
 # remove rotate
