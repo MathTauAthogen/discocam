@@ -33,9 +33,9 @@ filter_data = [
     },
     {
     "name": "rickroll",
-    "inputs": ["static/disco.png"],
-    "params": [["period", "magnitude"], ["3","500"]],
-    "filter": "[#####][v]scale2ref=w=oh*mdar:h=ih/5[disco][v];[v][disco]overlay=x=W*4/10:y=0[v];[v]hue=\'h=!!magnitude!!+!!magnitude!!*sin(2*PI*t/!!period!!)\'[v]"
+    "inputs": ["static/rickroll.mp4"],
+    "params": [[], []],
+    "filter": "[#####]crop=in_w-2*90[rickroll];[rickroll][v]scale2ref=w=oh*mdar:h=ih/4[rickroll][v];[v][rickroll]overlay=x=W*11/12-w:y=H/12[v]"
     },
     {
     "name": "frame",
@@ -96,7 +96,7 @@ class Cam:
         self.effects.append({
             "name": "rickroll",
             "inputs": ["static/rickroll.mp4"],
-            "filter": "[#####]crop=in_w-2*90[rickroll];[rickroll][v]scale2ref=w=oh*mdar:h=ih/4[rickroll][v];[v][rickroll]overlay=x=W*2/3:y=H/12[v]"
+            "filter": "[#####]crop=in_w-2*90[rickroll];[rickroll][v]scale2ref=w=oh*mdar:h=ih/4[rickroll][v];[v][rickroll]overlay=x=W*11/12-iw:y=H/12[v]"
         })
 
     def add_justify(self, params):
@@ -152,12 +152,14 @@ class Cam:
     def shutdown(self):
         if self.process:
             os.system("pkill ffmpeg")
+            os.wait()
             #self.process.terminate()
 
     def restart_ffmpeg(self):
         if self.process:
             #self.process.terminate()
             os.system("pkill ffmpeg")
+            os.wait()
 
         self.process = subprocess.Popen(self.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
         t = Timer(300, self.restart_ffmpeg, [])
@@ -186,10 +188,7 @@ if __name__ == "__main__":
                 continue
             function = words[1].lower()
             if(function in allowed_filters):
-                if(function != "rickroll"):
-                    cam.add_generic_effect(words[2:], function)
-                else:
-                    cam.add_rickroll(words[2:])
+                cam.add_generic_effect(words[2:], function)
             else:
                 print("function not recognized")
         elif words[0] == "remove":
