@@ -12,7 +12,7 @@ filter_data = [
     "inputs": ["static/disco.png"],
     "params": [["period", "magnitude"], ["3","500"]],
     "filter": "[#####][v]scale2ref=w=oh*mdar:h=ih/5[disco][v];[v][disco]overlay=x=W*4/10:y=0[v];[v]hue=\'h=!!magnitude!!+!!magnitude!!*sin(2*PI*t/!!period!!)\'[v]"
-    },
+    }, # color=color=red@.3[black];[black][v]scale2ref[black][v];[v][black]overlay[v];
     {
     "name": "fireworks",
     "inputs": ["static/fireworks.png"],
@@ -231,7 +231,7 @@ if __name__ == "__main__":
             continue
         
         cam.generate_cmd()
-        #print(cam.command)
+        print(cam.command)
         cam.run_cmd()
 
     cam.shutdown()
