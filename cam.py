@@ -143,6 +143,7 @@ class Cam:
             #self.process.kill()
             #os.killpg(os.getpgid(self.process.pid), signal.SIGKILL)
             os.system("pkill ffmpeg")
+            os.wait()
         self.process = subprocess.Popen(self.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
         # os.system(self.command)
         # out,err=self.process.communicate()
