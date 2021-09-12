@@ -141,8 +141,7 @@ class Cam:
         if self.process:
             #self.process.terminate()
             os.system("pkill ffmpeg")
-        self.process=True
-        subprocess.Popen(self.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+        self.process = subprocess.Popen(self.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
         # os.system(self.command)
         # out,err=self.process.communicate()
 
@@ -158,7 +157,7 @@ class Cam:
         if self.process:
             #self.process.terminate()
             os.system("pkill ffmpeg")
-        self.process=subprocess.Popen(self.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+        self.process = subprocess.Popen(self.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
         t = Timer(300, self.restart_ffmpeg, [])
         t.start()
 
