@@ -1,4 +1,4 @@
-# Spicy Cam
+# DiscoCam (formerly: Spicy Cam)
 
 Make your video calls more "spicy" with these video effects
 on the fly!
